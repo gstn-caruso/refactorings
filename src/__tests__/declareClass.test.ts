@@ -1,18 +1,9 @@
-import {ClassBody, classDeclaration, Expression, Identifier} from "@babel/types";
 import generate from "@babel/generator";
+import {declareClass} from "../declareClass";
+import {declareSubClass} from "../declareSubClass";
 
 describe("declareClass", () => {
-  function declareClass(className: string, superClass?: Expression) {
-    const id: Identifier = {name: className, type: "Identifier"};
-    const body: ClassBody = {body: [], type: "ClassBody"};
 
-    return classDeclaration(id, superClass, body);
-  }
-
-  function declareSubClass(subClassName: string, superClass: string) {
-    const ex: Identifier = {name: superClass, type: "Identifier"}
-    return declareClass(subClassName, ex)
-  }
 
   test("generates a class with a given name", () => {
     const expectedCode = `class ClassName {}`;

@@ -1,5 +1,5 @@
-import {functionDeclaration, Identifier, TSTypeAnnotation} from "@babel/types"
 import generate from "@babel/generator";
+import {declareFunctionWithNoParameters, declareFunctionWithParameters} from "../declareFunction";
 
 test("generate method with no parameters", () => {
   const expectedCode = `function greet() {\n  console.log();\n}`
@@ -39,47 +39,3 @@ test("generates method with many parameters with different types", () => {
   const generated = generate(newFunction)
   expect(generated.code).toEqual(expectedCode)
 })
-
-type Id = { name: string, type: string };
-const declareFunctionWithNoParameters = (message: string) => declareFunction(message, []);
-const declareFunctionWithParameters = (name: string, parameters: Id[]) => declareFunction(name, parameters);
-
-function declareFunction(name: string, parameters: Id[]) {
-  const id: (parameter: string) => Identifier = (x) => ({type: "Identifier", name: x});
-
-  const params: Identifier[] = parameters.map((p) => {
-    const idType = p.type === "string" ? "TSStringKeyword" : "TSNumberKeyword"
-
-    return ({
-      ...id(p.name),
-      typeAnnotation: {
-        type: "TSTypeAnnotation",
-        typeAnnotation: {
-          type: idType as unknown as TSTypeAnnotation,
-        },
-      }
-    } as unknown as Identifier);
-  })
-
-
-  return functionDeclaration(id(name), params, {
-    body: [{
-      type: "ExpressionStatement", expression: {
-        type: "CallExpression",
-        arguments: params,
-        callee: {
-          type: "MemberExpression",
-          object: {
-            type: "Identifier",
-            name: "console"
-          },
-          property: {
-            type: "Identifier",
-            name: "log"
-          },
-          computed: false,
-        },
-      }
-    }], directives: [], type: "BlockStatement"
-  });
-}
